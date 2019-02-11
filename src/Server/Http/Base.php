@@ -210,7 +210,7 @@ class Base
 
     public function onWorkerStart(\swoole_http_server $serverObj, $workerId) {
         $this->startTime = time();
-        $processName = sprintf($this->serverConfig['server']['event_worker_process_name'], $workerId);
+        $processName = sprintf(Config::get('server.event_worker_process_name'), $workerId);
         $this->setProcessName($processName);
     }
 
