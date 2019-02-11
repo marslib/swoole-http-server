@@ -1,0 +1,23 @@
+{
+    "name": "mars-lib/swoole-http-server",
+    "license": "MIT",
+    "description": "swoole server to php framework",
+    "authors": [
+        {
+            "name": "scaffold",
+            "email": "scaffold@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "MarsLib\\Server\\": "src/Server"
+        }
+    },
+    "require": {
+        "mars-lib/scaffold": "dev-master",
+        "ext-pcntl": "*"
+    },
+    "bin": [
+        "bin/sw_http.php"
+    ]
+}

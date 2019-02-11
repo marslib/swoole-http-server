@@ -1,0 +1,15 @@
+[Unit]
+Description=Swoole Http Server
+After=network.target
+After=syslog.target
+
+[Service]
+Type=simple
+LimitNOFILE=65535
+ExecStart=/usr/bin/php {YOUR_APP_PATH}/bin/sw_http.php start
+ExecReload=/bin/kill -USR1 $MAINPID
+ExecStop=/bin/kill $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target graphical.target
