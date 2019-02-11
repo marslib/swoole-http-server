@@ -229,7 +229,7 @@ function swTaskStop($conf, $isRestart = false)
 function swTaskStatus($conf)
 {
     echo "swoole-http-server {$conf['host']}:{$conf['port']} 运行状态" . PHP_EOL;
-    $cmd1 = "ps aux | grep -v grep | grep -E 'sw_http|COMMAND|swoole-http' |  sort -n -k 2";
+    $cmd1 = "ps aux | grep -v grep | grep -E 'sw_http|COMMAND|{$conf['port']}' |  sort -n -k 2";
     exec($cmd1, $out1);
     foreach($out1 as $v) {
         if(strpos($v, 'status') === false) {

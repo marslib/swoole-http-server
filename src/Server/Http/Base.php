@@ -162,6 +162,7 @@ class Base
      */
     protected function setProcessName($name)
     {
+        $name .= '-' . $this->defaultPort;
         if(PHP_OS == 'Darwin') {
             return false;
         }
