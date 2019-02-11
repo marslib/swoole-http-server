@@ -68,6 +68,7 @@ class Base
         if(!Config::get('server.manager_pid_file')) {
             Config::set('server.manager_pid_file', MH_SRC_PATH . "/manager_pid_file_{$this->defaultPort}.pid");
         }
+        $this->serverConfig = array_merge($this->serverConfig ?? [], Config::get('server', []));
     }
 
     /**
