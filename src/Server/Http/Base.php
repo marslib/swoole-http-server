@@ -196,14 +196,14 @@ class Base
     }
 
     public function onStart(\swoole_http_server $serverObj) {
-        $this->setProcessName($this->serverConfig['server']['master_process_name']);
+        $this->setProcessName(Config::get('server.master_process_name'));
         file_put_contents(Config::get('server.master_pid_file'), $serverObj->master_pid);
         return true;
 
     }
 
     public function onManagerStart(\swoole_http_server $serverObj) {
-        $this->setProcessName($this->serverConfig['server']['manager_process_name']);
+        $this->setProcessName(Config::get('server.manager_process_name'));
         file_put_contents(Config::get('server.manager_pid_file'), $serverObj->manager_pid);
         return true;
     }
