@@ -35,6 +35,9 @@ $httpConf = [
     'open_tcp_nodelay' => 1,    //关闭Nagle算法,提高HTTP服务器响应速度
     'plat' => 'yaf',
     'log_file' => MH_SRC_PATH . '/logs/log_file.log',
+    'master_process_name' => 'swoole-http-master',
+    'manager_process_name' => 'swoole-http-manager',
+    'event_worker_process_name' => 'swoole-http-evnet-worker-%d'
 ];
 /**
  * @var array swoole-http_server支持的进程管理命令
