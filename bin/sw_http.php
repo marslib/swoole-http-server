@@ -4,7 +4,14 @@
 use MarsLib\Scaffold\Common\Config;
 use MarsLib\Server\Http\Factory;
 
-require dirname(__FILE__) . '/../vendor/autoload.php';
+if(!defined('DS')) {
+   define('DS', DIRECTORY_SEPARATOR); 
+}
+
+define('MH_SRC_PATH', realpath(__DIR__ . DS . '..'));
+define("SW_APP_ROOT", realpath(MH_SRC_PATH . DS . '..' . DS . '..' . DS . '..'));
+
+require SW_APP_ROOT . '/vendor/autoload.php';
 error_reporting(E_ALL);
 /**
  * 检查exec 函数是否启用
@@ -19,9 +26,8 @@ exec("whereis lsof", $out);
 if($out[0] == 'lsof:') {
     exit('lsof is not found' . PHP_EOL);
 }
-define('DS', DIRECTORY_SEPARATOR);
-define('MH_SRC_PATH', realpath(__DIR__ . DS . '..'));
-define("SW_APP_ROOT", realpath(MH_SRC_PATH . DS . '..' . DS . '..' . DS . '..'));
+
+
 $httpConf = [
     'tz' => 'Asia/Shanghai',//时区设定，数据统计时区非常重要
     'host' => '127.0.0.1',  //默认监听ip
@@ -34,7 +40,7 @@ $httpConf = [
     'task_max_request' => 10000,    //当task进程处理请求超过此值则关闭task进程,保障进程无内存泄露
     'open_tcp_nodelay' => 1,    //关闭Nagle算法,提高HTTP服务器响应速度
     'plat' => 'yaf',
-    'log_file' => MH_SRC_PATH . '/logs/log_file.log',
+    'log_file' => SW_APP_ROOT . '/logs/log_file.log',
     'master_process_name' => 'swoole-http-master',
     'manager_process_name' => 'swoole-http-manager',
     'event_worker_process_name' => 'swoole-http-event-worker-%d',
