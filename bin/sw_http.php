@@ -2,7 +2,7 @@
 <?php
 
 use MarsLib\Scaffold\Common\Config;
-use MarsLib\Server\Http\SwooleYaf;
+use MarsLib\Server\Http\Factory;
 
 require dirname(__FILE__) . '/../vendor/autoload.php';
 error_reporting(E_ALL);
@@ -37,7 +37,7 @@ $httpConf = [
     'log_file' => MH_SRC_PATH . '/logs/log_file.log',
     'master_process_name' => 'swoole-http-master',
     'manager_process_name' => 'swoole-http-manager',
-    'event_worker_process_name' => 'swoole-http-evnet-worker-%d'
+    'event_worker_process_name' => 'swoole-http-event-worker-%d',
 ];
 /**
  * @var array swoole-http_server支持的进程管理命令
@@ -56,10 +56,22 @@ $cmds = [
 $longopt = [
     'help',//显示帮助文档
     'daemon:',//以守护进程模式运行,不指定读取配置文件
+    'd:',
     'host:',//监听主机ip, 0.0.0.0 表示所有ip
+    'h:',
     'port:',//监听端口
+    'p:',
 ];
-$opts = getopt('', $longopt);
+$opts = getopt('d:daemon:h:host:port:p:', $longopt);
+if(isset($opts['d'])) {
+    $opts['daemon'] = $opts['d'];
+}
+if(isset($opts['h'])) {
+    $opts['host'] = $opts['h'];
+}
+if(isset($opts['p'])) {
+    $opts['port'] = $opts['p'];
+}
 if(isset($opts['help']) || $argc < 2) {
     echo <<<HELP
 用法：php swoole-http-server.php 选项[help|daemon|host|port]  命令[start|stop|restart|status|list]
@@ -169,9 +181,9 @@ function swTaskStart($conf)
         $cmd = "ps ax | awk '{ print $1 }' | grep -e \"^{$pid[0]}$\"";
         exec($cmd, $out);
         if(!empty($out)) {
-            exit("swoole-http-server pid文件 " . $conf['master_pid_file'] . " 存在，swoole-http-server 服务器已经启动，进程pid为:{$pid[0]}" . PHP_EOL);
+            exit("pid文件 " . $conf['master_pid_file'] . " 已存在" . PHP_EOL . "服务器已经启动，进程pid为:{$pid[0]}" . PHP_EOL);
         } else {
-            echo "警告:swoole-http-server pid文件 " . $conf['master_pid_file'] . " 存在，可能swoole-http-server服务上次异常退出(非守护模式ctrl+c终止造成是最大可能)" . PHP_EOL;
+            echo "pid文件 " . $conf['master_pid_file'] . " 已存在" . PHP_EOL . "可能服务上次异常退出(非守护模式ctrl+c终止造成是最大可能)" . PHP_EOL;
             unlink($conf['master_pid_file']);
         }
     }
@@ -184,7 +196,7 @@ function swTaskStart($conf)
         }
     }
     date_default_timezone_set($conf['tz']);
-    $server = SwooleYaf::getInstance();
+    $server = Factory::getServer($conf['framework'] ?? 'yaf');
     $server->start();
     //确保服务器启动后swoole-http-server-pid文件必须生成
     /*if (!empty(portBind($port)) && !file_exists(SWOOLE_TASK_PID_PATH)) {
@@ -197,14 +209,14 @@ function swTaskStop($conf, $isRestart = false)
 {
     echo "正在停止 swoole-http-server 服务" . PHP_EOL;
     if(!file_exists($conf['master_pid_file'])) {
-        exit('swoole-http-server-pid文件:' . $conf['master_pid_file'] . '不存在' . PHP_EOL);
+        exit('swoole-http-server pid文件:' . $conf['master_pid_file'] . '不存在' . PHP_EOL);
     }
     $pid = explode("\n", file_get_contents($conf['master_pid_file']));
     $bind = swTaskPort($conf['port']);
     if(empty($bind) || !isset($bind[$pid[0]])) {
         exit("指定端口占用进程不存在 port:{$conf['port']}, pid:{$pid[0]}" . PHP_EOL);
     }
-    $cmd = "kill -9 {$pid[0]}";
+    $cmd = "kill -9 `ps aux | grep -v grep | grep -E 'sw_http|-{$conf['port']}' |  sort -n -k 2 | awk '{print $2}'`";
     exec($cmd);
     do {
         $out = [];
@@ -217,6 +229,9 @@ function swTaskStop($conf, $isRestart = false)
     //确保停止服务后swoole-http-server-pid文件被删除
     if(file_exists($conf['master_pid_file'])) {
         unlink($conf['master_pid_file']);
+    }
+    if(file_exists($conf['manager_pid_file'])) {
+        unlink($conf['manager_pid_file']);
     }
     $msg = "执行命令 {$cmd} 成功，端口 {$conf['host']}:{$conf['port']} 进程结束" . PHP_EOL;
     if($isRestart) {
@@ -266,22 +281,6 @@ function swReload($conf)
     $cmd = "kill -USR1 {$manager_pid[0]}";
     exec($cmd);
     echo "swoole-http-server 服务 重启成功" . PHP_EOL;
-}
-
-//WARN macOS 下因为不支持进程修改名称，此方法使用有问题
-function swTaskList($conf)
-{
-    echo "本机运行的swoole-http-server服务进程" . PHP_EOL;
-    $cmd = "ps aux|grep " . $conf['ps_name'] . "|grep -v grep|awk '{print $1, $2, $6, $8, $9, $11}'";
-    exec($cmd, $out);
-    if(empty($out)) {
-        exit("没有发现正在运行的swoole-http-server服务" . PHP_EOL);
-    }
-    echo "USER PID RSS(kb) STAT START COMMAND" . PHP_EOL;
-    foreach($out as $v) {
-        echo $v . PHP_EOL;
-    }
-    exit();
 }
 
 //启动
