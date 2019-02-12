@@ -14,7 +14,7 @@
         }
     },
     "require": {
-        "mars-lib/scaffold": "dev-master"
+        "mars-lib/scaffold": "0.0.1"
     },
     "bin": [
         "bin/sw_http.php"
