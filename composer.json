@@ -14,8 +14,7 @@
         }
     },
     "require": {
-        "mars-lib/scaffold": "dev-master",
-        "ext-pcntl": "*"
+        "mars-lib/scaffold": "dev-master"
     },
     "bin": [
         "bin/sw_http.php"
