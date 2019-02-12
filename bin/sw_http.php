@@ -159,8 +159,8 @@ if(!empty($opts['port'])) {
 }
 $conf = array_merge($opts, $httpConf);
 //确定port之后则进程文件确定，可在conf中加入
-$conf['master_pid_file'] = MH_SRC_PATH . DS . 'master_pid_file_' . $conf['port'] . '.pid';
-$conf['manager_pid_file'] = MH_SRC_PATH . DS . 'manager_pid_file_' . $conf['port'] . '.pid';
+$conf['master_pid_file'] = SW_APP_ROOT . DS . 'master_pid_file_' . $conf['port'] . '.pid';
+$conf['manager_pid_file'] = SW_APP_ROOT . DS . 'manager_pid_file_' . $conf['port'] . '.pid';
 /**
  * @var  bool swoole-httpServer运行模式，参数nodaemon 以非守护进程模式运行，否则以配置文件设置值为默认值
  */
